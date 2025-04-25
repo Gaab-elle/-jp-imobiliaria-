@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - JP Imobiliária</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #a94442;
+            color: white;
+        }
+        .sidebar a {
+            color: #ffeaea;
+            text-decoration: none;
+            display: block;
+            padding: 10px 20px;
+            font-weight: 500;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+            color: white;
+        }
+        .card-icon {
+            font-size: 2rem;
+        }
+        .residencial-info {
+            margin-bottom: 1rem;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .apartamentos {
+            display: none;
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .list-group-item {
+            margin-bottom: 8px;
+            border-radius: 5px !important;
+        }
+        .nav-section {
+            margin-bottom: 20px;
+        }
+        .is-invalid {
+            border-color: #dc3545;
+        }
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.875em;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Menu lateral -->
+        <div class="col-md-3 col-lg-2 sidebar d-flex flex-column">
+            <h4 class="p-3 text-center border-bottom">JP Imobiliária</h4>
+            <a href="#" id="home-link">🏠 Home</a>
+            <a href="#" id="toggleResidenciais">🏘️ Residenciais</a>
+            <a href="#" id="toggleMoradores">🧍 Moradores</a>
+            <a href="#" id="toggleContratos">📄 Contratos</a>
+            <a href="#" id="toggleManutencoes">🔧 Manutenções</a>
+            <a href="#" id="toggleArquivos">📁 Arquivos</a>
+        </div>
+
+        <!-- Conteúdo principal -->
+        <div class="col-md-9 col-lg-10 p-4">
+            <!-- Seção Home -->
+            <div id="dashboard-section">
+                <div class="d-flex justify-content-between align-items-center nav-section">
+                    <div>
+                        <h2>Dashboard</h2>
+                        <p class="text-muted">Visão geral do sistema</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary" id="refresh-btn">Atualizar Dados</button>
+                    </div>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Ocupados</h5>
+                                <p class="card-text" id="ocupados-count">Carregando...</p>
+                                <span class="card-icon">🏠</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Disponíveis</h5>
+                                <p class="card-text" id="disponiveis-count">Carregando...</p>
+                                <span class="card-icon">🏢</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Vencendo em breve</h5>
+                                <p class="card-text" id="vencendo-count">Carregando...</p>
+                                <span class="card-icon">⏳</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Inadimplentes</h5>
+                                <p class="card-text" id="inadimplentes-count">Carregando...</p>
+                                <span class="card-icon">⚠️</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção Residenciais -->
+            <div id="residenciais-section" style="display: none;">
+                <div class="nav-section">
+                    <h2>Residenciais</h2>
+                    <p class="text-muted">Clique em um residencial para ver os apartamentos</p>
+                </div>
+                <div id="residenciais-list">
+                    <!-- Dinamicamente preenchido pelo JavaScript -->
+                </div>
+            </div>
+
+            <!-- Seção Moradores -->
+            <div id="moradores-section" style="display: none;">
+                <div class="nav-section">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2>Cadastro de Moradores</h2>
+                            <p class="text-muted">Gerencie os moradores dos residenciais</p>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary" id="export-btn">Exportar Dados</button>
+                    </div>
+                </div>
+                
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Novo Morador</h5>
+                        <form id="form-morador">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="nome" class="form-label">Nome Completo*</label>
+                                        <input type="text" class="form-control" id="nome" required>
+                                        <div class="invalid-feedback">Por favor, informe o nome</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cpf" class="form-label">CPF*</label>
+                                        <input type="text" class="form-control" id="cpf" required>
+                                        <div class="invalid-feedback">CPF é obrigatório</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="rg" class="form-label">RG</label>
+                                        <input type="text" class="form-control" id="rg">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="telefone" class="form-label">Telefone*</label>
+                                        <input type="text" class="form-control" id="telefone" required>
+                                        <div class="invalid-feedback">Telefone é obrigatório</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="profissao" class="form-label">Profissão</label>
+                                        <input type="text" class="form-control" id="profissao">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="veiculo" class="form-label">Possui veículo?</label>
+                                        <select class="form-control" id="veiculo">
+                                            <option value="Não">Não</option>
+                                            <option value="Sim">Sim</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="placa" class="form-label">Placa do veículo</label>
+                                        <input type="text" class="form-control" id="placa">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="apartamento" class="form-label">Apartamento*</label>
+                                        <input type="text" class="form-control" id="apartamento" required>
+                                        <div class="invalid-feedback">Informe o apartamento</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary">Cadastrar</button>
+                                <button type="reset" class="btn btn-outline-secondary ms-2">Limpar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Moradores Cadastrados</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="tabela-moradores">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Apartamento</th>
+                                        <th>Telefone</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lista-moradores">
+                                    <!-- Preenchido pelo JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção Arquivos -->
+            <div id="arquivos-section" style="display: none;">
+                <div class="nav-section">
+                    <h2>Arquivos</h2>
+                    <p class="text-muted">Gerenciamento de documentos</p>
+                </div>
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            Esta funcionalidade está em desenvolvimento e será implementada em breve.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Constantes e Variáveis Globais
+const DB_KEY = 'jp-imobiliaria-data';
+const sections = {
+    dashboard: document.getElementById("dashboard-section"),
+    residenciais: document.getElementById("residenciais-section"),
+    moradores: document.getElementById("moradores-section"),
+    arquivos: document.getElementById("arquivos-section")
+};
+
+// Dados iniciais
+let appData = {
+    moradores: [],
+    residenciais: [
+        { id: 'ip1', nome: 'Residencial IP-1', apartamentos: ['101', '102', '103'] },
+        { id: 'ip2', nome: 'Residencial IP-2', apartamentos: ['201', '202', '203'] },
+        { id: 'ip3', nome: 'Residencial IP-3', apartamentos: ['301', '302', '303'] },
+        { id: 'ip4', nome: 'Residencial IP-4', apartamentos: ['401', '402', '403'] },
+        { id: 'ip5', nome: 'Residencial IP-5', apartamentos: ['501', '502', '503'] },
+        { id: 'ip6', nome: 'Residencial IP-6', apartamentos: ['601', '602', '603'] },
+        { id: '2-irmaos', nome: 'Residencial 2 Irmãos', apartamentos: ['A1', 'A2', 'A3'] }
+    ],
+    metricas: {
+        ocupados: 0,
+        disponiveis: 0,
+        vencendo: 0,
+        inadimplentes: 0
+    }
+};
+
+// Inicialização
+document.addEventListener("DOMContentLoaded", function() {
+    loadData();
+    setupEventListeners();
+    showSection('dashboard');
+    renderResidenciais();
+    renderMoradores();
+    updateMetrics();
+});
+
+// Funções Principais
+function loadData() {
+    const savedData = localStorage.getItem(DB_KEY);
+    if (savedData) {
+        appData = JSON.parse(savedData);
+    }
+}
+
+function saveData() {
+    localStorage.setItem(DB_KEY, JSON.stringify(appData));
+}
+
+function setupEventListeners() {
+    // Navegação
+    document.getElementById("home-link").addEventListener("click", () => showSection('dashboard'));
+    document.getElementById("toggleResidenciais").addEventListener("click", () => showSection('residenciais'));
+    document.getElementById("toggleMoradores").addEventListener("click", () => showSection('moradores'));
+    document.getElementById("toggleArquivos").addEventListener("click", () => showSection('arquivos'));
+    
+    // Formulário
+    document.getElementById("form-morador").addEventListener("submit", handleFormSubmit);
+    
+    // Botões
+    document.getElementById("refresh-btn").addEventListener("click", updateMetrics);
+    document.getElementById("export-btn").addEventListener("click", exportData);
+}
+
+function showSection(sectionName) {
+    // Esconde todas as seções
+    Object.values(sections).forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // Mostra a seção solicitada
+    sections[sectionName].style.display = 'block';
+    
+    // Atualizações específicas por seção
+    if (sectionName === 'dashboard') updateMetrics();
+    if (sectionName === 'moradores') renderMoradores();
+}
+
+function handleFormSubmit(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const formData = new FormData(form);
+    const novoMorador = Object.fromEntries(formData.entries());
+    
+    // Validação básica
+    let isValid = true;
+    ['nome', 'cpf', 'telefone', 'apartamento'].forEach(field => {
+        if (!novoMorador[field]) {
+            document.getElementById(field).classList.add('is-invalid');
+            isValid = false;
+        } else {
+            document.getElementById(field).classList.remove('is-invalid');
+        }
+    });
+    
+    if (!isValid) return;
+    
+    // Adiciona data de cadastro
+    novoMorador.dataCadastro = new Date().toISOString();
+    novoMorador.id = Date.now().toString();
+    
+    // Adiciona ao array e salva
+    appData.moradores.push(novoMorador);
+    saveData();
+    
+    // Atualiza a interface
+    form.reset();
+    renderMoradores();
+    updateMetrics();
+    
+    // Feedback visual
+    alert('Morador cadastrado com sucesso!');
+}
+
+function renderResidenciais() {
+    const container = document.getElementById('residenciais-list');
+    container.innerHTML = '';
+    
+    appData.residenciais.forEach(residencial => {
+        const div = document.createElement('div');
+        div.className = 'residencial-info';
+        div.innerHTML = `
+            <h5>${residencial.nome}</h5>
+            <ul class="apartamentos">
+                ${residencial.apartamentos.map(apto => `<li>Ap ${apto}</li>`).join('')}
+            </ul>
+        `;
+        
+        div.addEventListener('click', function() {
+            const ul = this.querySelector('ul');
+            ul.style.display = ul.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        container.appendChild(div);
+    });
+}
+
+function renderMoradores() {
+    const tbody = document.getElementById('lista-moradores');
+    tbody.innerHTML = '';
+    
+    if (appData.moradores.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center text-muted py-4">Nenhum morador cadastrado</td>
+            </tr>
+        `;
+        return;
+    }
+    
+    appData.moradores.sort((a, b) => a.nome.localeCompare(b.nome)).forEach(morador => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${morador.nome}</td>
+            <td>${morador.apartamento}</td>
+            <td>${morador.telefone}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-danger" data-id="${morador.id}">
+                    Remover
+                </button>
+            </td>
+        `;
+        
+        tr.querySelector('button').addEventListener('click', function() {
+            if (confirm(`Remover ${morador.nome} do apartamento ${morador.apartamento}?`)) {
+                appData.moradores = appData.moradores.filter(m => m.id !== morador.id);
+                saveData();
+                renderMoradores();
+                updateMetrics();
+            }
+        });
+        
+        tbody.appendChild(tr);
+    });
+}
+
+function updateMetrics() {
+    // Atualiza métricas (valores simulados - pode conectar a dados reais depois)
+    const totalApartamentos = appData.residenciais.reduce((sum, res) => sum + res.apartamentos.length, 0);
+    
+    appData.metricas = {
+        ocupados: appData.moradores.length,
+        disponiveis: totalApartamentos - appData.moradores.length,
+        vencendo: Math.floor(Math.random() * 5), // Simulado
+        inadimplentes: Math.floor(Math.random() * 3) // Simulado
+    };
+    
+    // Atualiza a interface
+    document.getElementById('ocupados-count').textContent = `${appData.metricas.ocupados} apartamentos`;
+    document.getElementById('disponiveis-count').textContent = `${appData.metricas.disponiveis} apartamentos`;
+    document.getElementById('vencendo-count').textContent = `${appData.metricas.vencendo} contratos`;
+    document.getElementById('inadimplentes-count').textContent = `${appData.metricas.inadimplentes} moradores`;
+}
+
+function exportData() {
+    const dataStr = JSON.stringify(appData.moradores, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `moradores-jp-imobiliaria-${new Date().toISOString().slice(0,10)}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+/* Personalizações adicionais */
+#lista-geral .list-group-item {
+    margin-bottom: 8px;
+    border-radius: 5px;
+}
+
+.modal-content {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.card {
+    border: none;
+    border-left: 4px solid #a94442;
+}
